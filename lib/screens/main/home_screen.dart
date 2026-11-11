@@ -12,6 +12,7 @@ import '../../navigation/main_shell.dart';
 import '../../state/app_state.dart';
 import '../../widgets/avatar.dart';
 import '../../widgets/bottom_nav.dart';
+import '../../widgets/charts.dart';
 import '../../widgets/common.dart';
 import '../../widgets/controls.dart';
 import '../../widgets/guide_card.dart';
@@ -105,23 +106,27 @@ class HomeScreen extends StatelessWidget {
           SectionHeader('Guías para ti', action: 'Ver todas', onAction: () => shell.select(AppTab.alimentacion)),
           const SizedBox(height: 10),
           SizedBox(
-            height: 178,
+            height: 194,
             child: ListView.separated(
               scrollDirection: Axis.horizontal,
               clipBehavior: Clip.none,
-              itemCount: guidesCatalog.length,
+              itemCount: _homeGuides.length,
               separatorBuilder: (_, _) => const SizedBox(width: 12),
               itemBuilder: (_, i) => SizedBox(
-                width: 150,
+                width: 218,
                 child: GuideCard(
-                  guide: guidesCatalog[i],
-                  saved: s.isFavorite('guide:${guidesCatalog[i].id}'),
-                  onTap: () => openGuide(context, guidesCatalog[i]),
+                  guide: _homeGuides[i],
+                  home: true,
+                  imageHeight: 124,
+                  saved: s.isFavorite('guide:${_homeGuides[i].id}'),
+                  onTap: () => openGuide(context, _homeGuides[i]),
                 ),
               ),
             ),
           ),
           const SizedBox(height: 22),
+          _WeekCard(state: s),
+          const SizedBox(height: 12),
           ProaCard(
             color: AppColors.warmSofter,
             border: Border.all(color: const Color(0xFFFED7AA)),
@@ -131,7 +136,7 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(width: 12),
               Expanded(
                 child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text('Consejo del día', style: AppText.inter(13, FontWeight.w700, color: AppColors.orange)),
+                  Text('CONSEJO DE HOY', style: AppText.overline.copyWith(color: AppColors.orange)),
                   const SizedBox(height: 4),
                   Text(tip, style: AppText.inter(13, FontWeight.w400, color: const Color(0xFF374151), height: 1.45)),
                 ]),
@@ -143,6 +148,9 @@ class HomeScreen extends StatelessWidget {
     );
   }
 }
+
+/// Orden de «Guías para ti» en Inicio (Figma: Plato equilibrado, Frutas y verduras…).
+final _homeGuides = [for (final id in ['plato', 'frutas', 'hidratacion', 'porciones', 'proteinas', 'ultraprocesados']) guideById(id)];
 
 const _tips = [
   'Sirve tu comida en un plato más pequeño: te ayuda a comer porciones adecuadas sin sentir que te privas.',
@@ -219,6 +227,48 @@ class _DayHeroCard extends StatelessWidget {
               track: AppColors.white.withValues(alpha: 0.22),
               child: Text('${(ratio * 100).round()}%', style: AppText.outfit(21, FontWeight.w700, color: AppColors.white)),
             ),
+          ]),
+        ),
+      ]),
+    );
+  }
+}
+
+/// «Tu semana»: días activos y barras de cumplimiento diario (Figma › Inicio).
+class _WeekCard extends StatelessWidget {
+  const _WeekCard({required this.state});
+  final AppState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = state;
+    final t = s.today;
+    final prevStart = Dates.weekStart(t).subtract(const Duration(days: 7));
+    final prevSoFar = [for (var i = 0; i < t.weekday; i++) DateTime(prevStart.year, prevStart.month, prevStart.day + i)]
+        .fold(0, (a, d) => a + s.completedOn(d));
+    final now = s.weekCompletedHabits;
+    final delta = prevSoFar == 0 ? null : ((now - prevSoFar) * 100 / prevSoFar).round();
+    return ProaCard(
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text('Tu semana', style: AppText.inter(14, FontWeight.w700)),
+              Text('${s.weekActiveDays} de 7 días activos', style: AppText.inter(12, FontWeight.w400, color: AppColors.textMuted)),
+            ]),
+          ),
+          if (delta != null)
+            Pill('${delta >= 0 ? '+' : ''}$delta%',
+                icon: delta >= 0 ? LucideIcons.trendingUp : LucideIcons.trendingDown,
+                fg: delta >= 0 ? AppColors.green : AppColors.orange,
+                bg: delta >= 0 ? AppColors.greenSoft : AppColors.warmBg),
+        ]),
+        const SizedBox(height: 14),
+        SizedBox(
+          height: 96,
+          child: BarChart(data: [
+            for (final d in Dates.weekOf(t))
+              BarDatum(Dates.weekdaysShort[d.weekday - 1], d.isAfter(t) ? null : s.ratioOn(d), highlight: d == t),
           ]),
         ),
       ]),

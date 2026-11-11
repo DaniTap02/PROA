@@ -41,6 +41,8 @@ class Guide {
     required this.tips,
     this.infographic,
     this.featured = false,
+    this.homeTag,
+    this.note,
   });
 
   final String id;
@@ -54,4 +56,11 @@ class Guide {
   final GuideInfographic? infographic;
   final List<String> tips;
   final bool featured;
+
+  /// Etiqueta de la tarjeta en Inicio (por defecto, el nivel).
+  final String? homeTag;
+
+  /// Nota final verde con ícono de mensaje.
+  final String? note;
+  String get tag => homeTag ?? level;
 }

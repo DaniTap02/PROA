@@ -19,7 +19,7 @@ class Habit {
     required this.trackerTitle,
     required this.trackerIcon,
     required this.description,
-    required this.tips,
+    required this.advice,
     this.slotLabels,
     this.estimatedMinutes = 0,
   });
@@ -50,7 +50,8 @@ class Habit {
   final String trackerTitle;
   final IconData trackerIcon;
   final String description;
-  final List<String> tips;
+  /// Texto de la tarjeta «Consejo práctico».
+  final String advice;
 
   /// Etiquetas opcionales por casilla (p. ej. Desayuno / Almuerzo / Cena).
   final List<String>? slotLabels;

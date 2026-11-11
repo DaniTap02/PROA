@@ -113,9 +113,9 @@ class ProaFilterChip extends StatelessWidget {
             duration: const Duration(milliseconds: 160),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
-              color: selected ? AppColors.text : AppColors.white,
+              color: selected ? AppColors.text : AppColors.fieldBg,
               borderRadius: Radii.rPill,
-              border: Border.all(color: selected ? AppColors.text : AppColors.border),
+              border: Border.all(color: selected ? AppColors.text : AppColors.fieldBg),
             ),
             child: Row(mainAxisSize: MainAxisSize.min, children: [
               if (selected) ...[const Icon(LucideIcons.check, size: 13, color: AppColors.white), const SizedBox(width: 5)],

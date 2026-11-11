@@ -18,7 +18,6 @@ import '../profile/help_screen.dart';
 import '../profile/my_habits_screen.dart';
 import '../profile/privacy_screen.dart';
 import '../profile/reminders_screen.dart';
-import '../test/test_result_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -123,13 +122,7 @@ class ProfileScreen extends StatelessWidget {
                     const SizedBox(height: 10),
                     _InfoRow(LucideIcons.activity, 'Nivel de actividad', p.activity.label),
                     _InfoRow(LucideIcons.target, 'Objetivo', p.goal.label),
-                    _InfoRow(LucideIcons.user, 'Sexo', p.sex.label),
                     _InfoRow(LucideIcons.calendar, 'Miembro desde', Dates.monthYear(p.createdAt)),
-                    if (s.testResult != null)
-                      GestureDetector(
-                        onTap: () => _push(context, TestResultScreen(result: s.testResult!, readOnly: true)),
-                        child: _InfoRow(LucideIcons.clipboardList, 'Resultado del test', '${s.testResult!.score}/100', link: true),
-                      ),
                   ]),
                 ),
                 const SizedBox(height: 12),
@@ -148,15 +141,26 @@ class ProfileScreen extends StatelessWidget {
                     _MenuRow(LucideIcons.lock, 'Privacidad', 'Gestión de datos', AppColors.violet, AppColors.violetSoft,
                         () => _push(context, const PrivacyScreen())),
                     const RowDivider(),
-                    _MenuRow(LucideIcons.info, 'Ayuda', 'Preguntas frecuentes', AppColors.turquoise, AppColors.infoBg,
+                    _MenuRow(LucideIcons.circleQuestionMark, 'Ayuda', 'Preguntas frecuentes', AppColors.turquoise, AppColors.infoBg,
                         () => _push(context, const HelpScreen())),
                   ]),
                 ),
                 const SizedBox(height: 12),
-                ProaCard(
-                  padding: EdgeInsets.zero,
-                  child: _MenuRow(LucideIcons.logOut, 'Cerrar sesión', null, AppColors.danger, AppColors.dangerSoft, () => _logout(context),
-                      danger: true),
+                Material(
+                  color: AppColors.dangerSoft.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(16),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () => _logout(context),
+                    child: SizedBox(
+                      height: 52,
+                      child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                        const Icon(LucideIcons.logOut, size: 18, color: AppColors.danger),
+                        const SizedBox(width: 8),
+                        Text('Cerrar sesión', style: AppText.inter(14.5, FontWeight.w600, color: AppColors.danger)),
+                      ]),
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 14),
                 Text('PROA · Herramienta educativa. No reemplaza consulta médica.',
@@ -192,10 +196,9 @@ class _HeaderStat extends StatelessWidget {
 }
 
 class _InfoRow extends StatelessWidget {
-  const _InfoRow(this.icon, this.label, this.value, {this.link = false});
+  const _InfoRow(this.icon, this.label, this.value);
   final IconData icon;
   final String label, value;
-  final bool link;
 
   @override
   Widget build(BuildContext context) => Padding(
@@ -209,21 +212,19 @@ class _InfoRow extends StatelessWidget {
             child: Text(value,
                 textAlign: TextAlign.right,
                 overflow: TextOverflow.ellipsis,
-                style: AppText.inter(12.5, FontWeight.w700, color: link ? AppColors.green : AppColors.text)),
+                style: AppText.inter(12.5, FontWeight.w700, color: AppColors.text)),
           ),
-          if (link) const Icon(LucideIcons.chevronRight, size: 14, color: AppColors.green),
         ]),
       );
 }
 
 class _MenuRow extends StatelessWidget {
-  const _MenuRow(this.icon, this.title, this.subtitle, this.color, this.bg, this.onTap, {this.danger = false});
+  const _MenuRow(this.icon, this.title, this.subtitle, this.color, this.bg, this.onTap);
   final IconData icon;
   final String title;
-  final String? subtitle;
+  final String subtitle;
   final Color color, bg;
   final VoidCallback onTap;
-  final bool danger;
 
   @override
   Widget build(BuildContext context) => InkWell(
@@ -236,11 +237,11 @@ class _MenuRow extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text(title, style: AppText.inter(14, FontWeight.w600, color: danger ? AppColors.danger : AppColors.text)),
-                if (subtitle != null) Text(subtitle!, style: AppText.inter(11.5, FontWeight.w400, color: AppColors.textMuted)),
+                Text(title, style: AppText.inter(14, FontWeight.w600, color: AppColors.text)),
+                Text(subtitle, style: AppText.inter(11.5, FontWeight.w400, color: AppColors.textMuted)),
               ]),
             ),
-            if (!danger) const Icon(LucideIcons.chevronRight, size: 17, color: Color(0xFFD1D5DB)),
+            const Icon(LucideIcons.chevronRight, size: 17, color: Color(0xFFD1D5DB)),
           ]),
         ),
       );

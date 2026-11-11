@@ -9,11 +9,15 @@ import 'common.dart';
 
 /// Tarjeta de guía de la cuadrícula «Todas las guías».
 class GuideCard extends StatelessWidget {
-  const GuideCard({super.key, required this.guide, required this.onTap, this.saved = false, this.imageHeight = 112});
+  const GuideCard({super.key, required this.guide, required this.onTap, this.saved = false, this.imageHeight = 112, this.home = false});
   final Guide guide;
   final VoidCallback onTap;
   final bool saved;
   final double imageHeight;
+
+  /// Variante de «Guías para ti» en Inicio: etiqueta sobre la foto, título
+  /// completo y «N min de lectura».
+  final bool home;
 
   @override
   Widget build(BuildContext context) => ProaCard(
@@ -28,6 +32,8 @@ class GuideCard extends StatelessWidget {
               borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
               child: Stack(fit: StackFit.expand, children: [
                 ProaImage(guide.image),
+                if (home)
+                  Positioned(top: 8, left: 8, child: Pill(guide.tag, fg: AppColors.text, bg: AppColors.white, fontSize: 10.5)),
                 if (saved)
                   Positioned(
                     top: 8,
@@ -45,12 +51,14 @@ class GuideCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.fromLTRB(10, 9, 10, 10),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text(guide.shortTitle, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppText.inter(13, FontWeight.w700)),
+              Text(home ? guide.title : guide.shortTitle,
+                  maxLines: 1, overflow: TextOverflow.ellipsis, style: AppText.inter(home ? 13.5 : 13, FontWeight.w700)),
               const SizedBox(height: 3),
               Row(children: [
                 const Icon(LucideIcons.clock, size: 11, color: AppColors.textMuted),
                 const SizedBox(width: 4),
-                Text('${guide.minutes} min', style: AppText.caption.copyWith(color: AppColors.textMuted)),
+                Text(home ? '${guide.minutes} min de lectura' : '${guide.minutes} min',
+                    style: AppText.caption.copyWith(color: AppColors.textMuted)),
               ]),
             ]),
           ),

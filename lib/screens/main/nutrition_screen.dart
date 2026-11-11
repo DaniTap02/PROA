@@ -12,6 +12,7 @@ import '../../widgets/common.dart';
 import '../../widgets/controls.dart';
 import '../../widgets/guide_card.dart';
 import '../guides/guide_detail_screen.dart';
+import '../../models/habit.dart';
 import 'habit_actions.dart';
 import 'plan_screen.dart';
 
@@ -108,7 +109,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                 child: Container(
                   height: 46,
                   padding: const EdgeInsets.symmetric(horizontal: 14),
-                  decoration: BoxDecoration(color: AppColors.white, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppColors.border)),
+                  decoration: BoxDecoration(color: AppColors.fieldBg, borderRadius: BorderRadius.circular(16)),
                   child: Row(children: [
                     const Icon(LucideIcons.search, size: 17, color: AppColors.textMuted),
                     const SizedBox(width: 10),
@@ -140,10 +141,10 @@ class _NutritionScreenState extends State<NutritionScreen> {
                 button: true,
                 label: 'Filtros',
                 child: Material(
-                  color: _savedOnly ? AppColors.text : AppColors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: const BorderSide(color: AppColors.border)),
+                  color: _savedOnly ? AppColors.text : AppColors.fieldBg,
+                  shape: const CircleBorder(),
                   child: InkWell(
-                    borderRadius: BorderRadius.circular(14),
+                    customBorder: const CircleBorder(),
                     onTap: _filters,
                     child: SizedBox.square(
                       dimension: 46,
@@ -175,8 +176,6 @@ class _NutritionScreenState extends State<NutritionScreen> {
             child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               if (browsing) ...[
                 FeaturedGuideCard(guide: featured, onTap: () => _open(featured)),
-                const SizedBox(height: 12),
-                CravingBanner(onTap: () => openCravings(context)),
                 const SizedBox(height: 20),
               ],
               SectionHeader(
@@ -212,6 +211,54 @@ class _NutritionScreenState extends State<NutritionScreen> {
                     onTap: () => _open(grid[i]),
                   ),
                 ),
+              if (browsing) ...[
+                const SizedBox(height: 24),
+                const SectionHeader('Herramientas'),
+                const SizedBox(height: 10),
+                CravingBanner(
+                  title: '¿Tienes un antojo?',
+                  subtitle: 'Registra cómo te sientes y obtén apoyo',
+                  icon: LucideIcons.cookie,
+                  onTap: () => openCravings(context),
+                ),
+                const SizedBox(height: 10),
+                ProaCard(
+                  onTap: () => openHabit(context, HabitId.meals),
+                  padding: const EdgeInsets.all(14),
+                  child: Row(children: [
+                    const IconBox(LucideIcons.pencilLine, color: AppColors.violet, bg: AppColors.violetSoft, size: 44, iconSize: 20),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text('Registra lo que comes', style: AppText.inter(14, FontWeight.w700)),
+                        const SizedBox(height: 2),
+                        Text('Identifica patrones y decide mejor', style: AppText.inter(12.5, FontWeight.w400, color: AppColors.textSecondary)),
+                      ]),
+                    ),
+                    const Icon(LucideIcons.chevronRight, size: 17, color: Color(0xFFD1D5DB)),
+                  ]),
+                ),
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: AppColors.infoSofter,
+                    borderRadius: Radii.rCard,
+                    border: Border.all(color: AppColors.infoBg),
+                  ),
+                  child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    const IconBox(LucideIcons.utensils, color: AppColors.turquoise, bg: AppColors.infoBg, size: 36, iconSize: 17),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text('TIP DEL DÍA', style: AppText.overline.copyWith(color: AppColors.turquoise)),
+                        const SizedBox(height: 4),
+                        Text(nutritionTipOfDay(s.today), style: AppText.inter(13.5, FontWeight.w500, height: 1.45)),
+                      ]),
+                    ),
+                  ]),
+                ),
+              ],
             ]),
           ),
         ],
@@ -219,3 +266,14 @@ class _NutritionScreenState extends State<NutritionScreen> {
     );
   }
 }
+
+const _nutritionTips = [
+  'Cocinar en casa te permite controlar la sal, el azúcar y el aceite de tus comidas.',
+  'Cambia el jugo del almuerzo por agua con limón o una aromática sin azúcar.',
+  'Arma tu plato empezando por las verduras: así la mitad queda lista.',
+  'Lleva fruta picada o maní sin sal para las meriendas de la tarde.',
+  'Lee las etiquetas: si el azúcar aparece entre los primeros ingredientes, consúmelo con moderación.',
+];
+
+/// Tip de alimentación que cambia cada día.
+String nutritionTipOfDay(DateTime d) => _nutritionTips[d.difference(DateTime(2026)).inDays.abs() % _nutritionTips.length];

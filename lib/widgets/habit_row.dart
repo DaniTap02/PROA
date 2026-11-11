@@ -27,7 +27,7 @@ class HabitRow extends StatelessWidget {
   Widget build(BuildContext context) => InkWell(
         onTap: onOpen,
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(8, 10, 14, 10),
+          padding: const EdgeInsets.fromLTRB(8, 14, 14, 14),
           child: Row(children: [
             ProaCheckbox(value: done, onChanged: (_) => onToggle()),
             const SizedBox(width: 6),

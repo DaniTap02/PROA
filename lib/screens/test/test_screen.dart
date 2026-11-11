@@ -17,9 +17,12 @@ import '../../widgets/popups.dart';
 import 'test_result_screen.dart';
 
 (Color, Color) categoryColors(TestArea a, String category) => switch (category) {
-      'Sueño' => (AppColors.violet, AppColors.violetSoft),
+      // Colores de las píldoras de categoría tomados de Figma.
+      'Sueño' => (const Color(0xFF4338CA), AppColors.violetSoft),
       'Rutina' => (const Color(0xFFB45309), const Color(0xFFFEF3C7)),
-      'Estrés' => (AppColors.purple, AppColors.purpleSoft),
+      'Bebidas' => (const Color(0xFFC2410C), AppColors.warmBg),
+      'Emociones' => (const Color(0xFFBE123C), const Color(0xFFFFE4E6)),
+      'Hidratación' => (const Color(0xFF0E7490), AppColors.infoBg),
       _ => (AppColors.greenDark, AppColors.greenSoft),
     };
 

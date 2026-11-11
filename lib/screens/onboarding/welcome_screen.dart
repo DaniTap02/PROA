@@ -42,7 +42,7 @@ class WelcomeScreen extends StatelessWidget {
       child: Scaffold(
         backgroundColor: const Color(0xFF053B22),
         body: Stack(fit: StackFit.expand, children: [
-          const ProaImage(Img.cooking, alignment: Alignment(0.2, -0.4)),
+          const ProaImage(Img.welcome, alignment: Alignment(0.35, -1)),
           const DecoratedBox(decoration: BoxDecoration(gradient: AppColors.welcomeOverlay)),
           Padding(
             padding: EdgeInsets.fromLTRB(24, pad.top + 16, 24, pad.bottom + 12),

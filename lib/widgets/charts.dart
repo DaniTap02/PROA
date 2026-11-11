@@ -33,7 +33,7 @@ class BarChart extends StatelessWidget {
                         ? CustomPaint(painter: _DashedRect(), child: const SizedBox.expand())
                         : Stack(alignment: Alignment.bottomCenter, children: [
                             Container(
-                              decoration: BoxDecoration(color: AppColors.greenSofter, borderRadius: BorderRadius.circular(8)),
+                              decoration: BoxDecoration(color: AppColors.surfaceMuted, borderRadius: BorderRadius.circular(8)),
                             ),
                             TweenAnimationBuilder<double>(
                               tween: Tween(end: b.value!.clamp(0, 1)),
@@ -48,7 +48,7 @@ class BarChart extends StatelessWidget {
                                     end: Alignment.bottomCenter,
                                     colors: v >= 0.6
                                         ? const [Color(0xFF22C55E), AppColors.greenDark]
-                                        : const [Color(0xFF86EFAC), Color(0xFF4ADE80)],
+                                        : (v >= 0.4 ? const [Color(0xFF4ADE80), Color(0xFF22C55E)] : const [Color(0xFFA7F3D0), Color(0xFFA7F3D0)]),
                                   ),
                                 ),
                               ),

@@ -2,12 +2,9 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../models/risk_test.dart';
 
-/// Las 8 preguntas del test de hábitos.
-///
-/// Preguntas 1, 3, 5 y 8: texto exacto de las capturas de Figma.
-/// Preguntas 2, 4, 6 y 7: no aparecen en el documento del segundo avance;
-/// se redactaron siguiendo el mismo formato y quedan PENDIENTES DE VALIDAR
-/// contra los frames de Figma (ver docs/PENDIENTES.md).
+/// Las 8 preguntas del test de hábitos, con el texto, la categoría y las
+/// opciones de los frames de Figma («Test de hábitos · Pregunta N de 8»).
+/// Los puntos de cada opción (0-3) son parametrizables: ver test_scoring.dart.
 const testQuestions = <TestQuestion>[
   TestQuestion(
     category: 'Actividad física',
@@ -22,15 +19,15 @@ const testQuestions = <TestQuestion>[
     ],
   ),
   TestQuestion(
-    category: 'Actividad física',
-    categoryIcon: LucideIcons.activity,
-    area: TestArea.actividad,
-    text: '¿Cuántas horas al día pasas sentado?',
+    category: 'Bebidas',
+    categoryIcon: LucideIcons.coffee,
+    area: TestArea.alimentacion,
+    text: '¿Con qué frecuencia consumes bebidas azucaradas?',
     options: [
-      TestOption('Más de 10 horas', 0),
-      TestOption('7-10 horas', 1),
-      TestOption('4-6 horas', 2),
-      TestOption('Menos de 4 horas', 3),
+      TestOption('Todos los días', 0),
+      TestOption('Varios días/semana', 1),
+      TestOption('1-2 veces/semana', 2),
+      TestOption('Casi nunca', 3),
     ],
   ),
   TestQuestion(
@@ -46,10 +43,10 @@ const testQuestions = <TestQuestion>[
     ],
   ),
   TestQuestion(
-    category: 'Alimentación',
-    categoryIcon: LucideIcons.leaf,
-    area: TestArea.alimentacion,
-    text: '¿Con qué frecuencia tomas gaseosas o jugos azucarados?',
+    category: 'Emociones',
+    categoryIcon: LucideIcons.heart,
+    area: TestArea.estres,
+    text: '¿Con qué frecuencia comes por ansiedad o estrés?',
     options: [
       TestOption('Todos los días', 0),
       TestOption('Varios días', 1),
@@ -70,27 +67,27 @@ const testQuestions = <TestQuestion>[
     ],
   ),
   TestQuestion(
-    category: 'Estrés',
-    categoryIcon: LucideIcons.zap,
-    area: TestArea.estres,
-    text: '¿Con qué frecuencia comes por ansiedad o estrés?',
+    category: 'Alimentación',
+    categoryIcon: LucideIcons.utensils,
+    area: TestArea.alimentacion,
+    text: '¿Con qué frecuencia consumes alimentos ultraprocesados?',
     options: [
-      TestOption('Casi siempre', 0),
-      TestOption('A menudo', 1),
-      TestOption('A veces', 2),
+      TestOption('Todos los días', 0),
+      TestOption('Varios días', 1),
+      TestOption('1-2 veces/semana', 2),
       TestOption('Casi nunca', 3),
     ],
   ),
   TestQuestion(
-    category: 'Estrés',
-    categoryIcon: LucideIcons.zap,
-    area: TestArea.estres,
-    text: '¿Cómo describirías tu nivel de estrés en la última semana?',
+    category: 'Hidratación',
+    categoryIcon: LucideIcons.droplet,
+    area: TestArea.alimentacion,
+    text: '¿Cuántos vasos de agua tomas al día?',
     options: [
-      TestOption('Muy alto', 0),
-      TestOption('Alto', 1),
-      TestOption('Moderado', 2),
-      TestOption('Bajo', 3),
+      TestOption('0-2 vasos', 0),
+      TestOption('3-4 vasos', 1),
+      TestOption('5-6 vasos', 2),
+      TestOption('7 o más vasos', 3),
     ],
   ),
   TestQuestion(

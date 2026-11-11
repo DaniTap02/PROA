@@ -9,7 +9,7 @@ enum AppTab { inicio, plan, alimentacion, progreso, perfil }
 const _items = [
   (AppTab.inicio, 'Inicio', LucideIcons.house),
   (AppTab.plan, 'Plan', LucideIcons.calendarCheck),
-  (AppTab.alimentacion, 'Alimentación', LucideIcons.mapPin),
+  (AppTab.alimentacion, 'Alimentación', LucideIcons.mapPinPlus),
   (AppTab.progreso, 'Progreso', LucideIcons.chartColumn),
   (AppTab.perfil, 'Perfil', LucideIcons.user),
 ];

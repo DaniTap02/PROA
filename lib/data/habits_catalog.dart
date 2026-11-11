@@ -5,6 +5,8 @@ import '../core/theme/app_colors.dart';
 import '../models/habit.dart';
 
 /// Los cinco hábitos del plan diario (Figma: «Detalle de cada hábito»).
+/// Descripciones tomadas de Figma; el final de cada «Consejo práctico» queda
+/// oculto bajo el botón fijo en el prototipo y se completó con el mismo sentido.
 const habitsCatalog = <Habit>[
   Habit(
     id: HabitId.water,
@@ -22,14 +24,8 @@ const habitsCatalog = <Habit>[
     trackerTitle: 'Registro de hoy',
     trackerIcon: LucideIcons.droplet,
     description:
-        'Mantener una buena hidratación es fundamental para el bienestar. '
-        'Beber agua regularmente ayuda a regular la temperatura, mejora la '
-        'concentración y reduce la sensación de hambre que a veces es sed.',
-    tips: [
-      'Ten una botella de agua a la vista durante el día.',
-      'Toma un vaso al despertar y otro antes de cada comida.',
-      'Cambia gaseosas y jugos azucarados por agua o aromáticas sin azúcar.',
-    ],
+        'Mantener una buena hidratación es fundamental para el bienestar. Beber agua regularmente ayuda a regular el metabolismo, mantener la energía y controlar el apetito.',
+    advice: 'Lleva una botella de agua contigo y rellénala durante el día.',
   ),
   Habit(
     id: HabitId.activity,
@@ -47,14 +43,8 @@ const habitsCatalog = <Habit>[
     trackerTitle: 'Minutos de hoy',
     trackerIcon: LucideIcons.footprints,
     description:
-        'Moverse a diario es uno de los hábitos más poderosos para prevenir '
-        'la obesidad y la diabetes tipo 2. No necesitas un gimnasio: caminar '
-        'a buen ritmo 30 minutos ya marca la diferencia.',
-    tips: [
-      'Divide los 30 minutos en bloques de 10 si no tienes tiempo seguido.',
-      'Usa las escaleras en lugar del ascensor.',
-      'Bájate una parada antes del bus y camina el resto.',
-    ],
+        'Moverse a diario es uno de los hábitos más poderosos para tu salud. No necesitas un gimnasio: caminar, bailar o subir escaleras cuenta como ejercicio.',
+    advice: 'Comienza con 15 minutos al día e increméntalo poco a poco.',
   ),
   Habit(
     id: HabitId.fruits,
@@ -72,14 +62,8 @@ const habitsCatalog = <Habit>[
     trackerTitle: 'Porciones de hoy',
     trackerIcon: LucideIcons.apple,
     description:
-        'Incluir frutas y verduras en tu alimentación diaria aporta fibra, '
-        'vitaminas y saciedad. Aprovecha lo que hay en la plaza: guayaba, '
-        'papaya, mango, banano, tomate, zanahoria y ahuyama.',
-    tips: [
-      'Agrega una fruta al desayuno y otra a media tarde.',
-      'Llena la mitad del plato del almuerzo con verduras.',
-      'Prefiere la fruta entera en lugar del jugo.',
-    ],
+        'Incluir frutas y verduras en tu alimentación diaria aporta vitaminas, minerales y fibra que tu cuerpo necesita para funcionar bien y mantenerse energizado.',
+    advice: 'Agrega una fruta en el desayuno y una porción de verduras en el almuerzo.',
   ),
   Habit(
     id: HabitId.meals,
@@ -98,14 +82,8 @@ const habitsCatalog = <Habit>[
     trackerIcon: LucideIcons.utensils,
     slotLabels: ['Desayuno', 'Almuerzo', 'Cena'],
     description:
-        'Anotar lo que comes te ayuda a reconocer patrones, horarios y '
-        'antojos sin juzgarte. No se trata de contar calorías, sino de '
-        'tomar conciencia de tus elecciones.',
-    tips: [
-      'Registra la comida justo después de comer, toma menos de un minuto.',
-      'Anota también cómo te sentías: te ayudará a entender tus antojos.',
-      'No te castigues si un día comiste diferente: mañana es otra oportunidad.',
-    ],
+        'Llevar un registro de lo que comes te ayuda a conocer tus patrones alimentarios y tomar decisiones más conscientes a lo largo del día.',
+    advice: 'Anota lo que comes justo después de cada comida para no olvidarlo.',
   ),
   Habit(
     id: HabitId.sleep,
@@ -122,14 +100,8 @@ const habitsCatalog = <Habit>[
     trackerTitle: 'Anoche dormiste',
     trackerIcon: LucideIcons.moon,
     description:
-        'El sueño es vital para la salud integral. Dormir menos de 7 horas '
-        'altera las hormonas del hambre y aumenta los antojos de alimentos '
-        'dulces y grasosos al día siguiente.',
-    tips: [
-      'Evita pantallas 30 minutos antes de acostarte.',
-      'Acuéstate y levántate a la misma hora, incluso el fin de semana.',
-      'Cena liviano y al menos dos horas antes de dormir.',
-    ],
+        'El sueño es vital para la salud integral. Dormir bien regula las hormonas del apetito, mejora la energía y apoya la recuperación muscular y mental.',
+    advice: 'Establece una hora fija para acostarte y evita las pantallas antes de dormir.',
   ),
 ];
 

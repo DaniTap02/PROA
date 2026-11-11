@@ -1,8 +1,11 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/dates.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_dimens.dart';
 import '../../core/theme/app_text.dart';
@@ -156,12 +159,9 @@ class HabitDetailScreen extends StatelessWidget {
                   const SizedBox(height: 16),
                   Text(h.description, style: AppText.paragraph.copyWith(fontSize: 14)),
                   const SizedBox(height: 16),
-                  Text('Consejos', style: AppText.subtitle),
-                  const SizedBox(height: 10),
-                  for (final (i, t) in h.tips.indexed) ...[
-                    _Tip(index: i + 1, text: t),
-                    const SizedBox(height: 8),
-                  ],
+                  _WeekProgress(habit: h, state: s),
+                  const SizedBox(height: 12),
+                  _Advice(habit: h),
                 ]),
               ),
             ],
@@ -268,25 +268,130 @@ class _Tracker extends StatelessWidget {
   }
 }
 
-class _Tip extends StatelessWidget {
-  const _Tip({required this.index, required this.text});
-  final int index;
-  final String text;
+/// «Progreso semanal N/7 días»: un círculo por día (Figma › Detalle de hábito).
+class _WeekProgress extends StatelessWidget {
+  const _WeekProgress({required this.habit, required this.state});
+  final Habit habit;
+  final AppState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = state;
+    final days = Dates.weekOf(s.today);
+    final done = days.where((d) => !d.isAfter(s.today) && s.dayOf(d, habit.id).completed).length;
+    final c = habit.color;
+    return ProaCard(
+      padding: const EdgeInsets.all(14),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Expanded(child: Text('Progreso semanal', style: AppText.inter(13.5, FontWeight.w700))),
+          Pill('$done/7 días', fg: c, bg: habit.softColor),
+        ]),
+        const SizedBox(height: 12),
+        Row(children: [
+          for (final d in days)
+            Expanded(
+              child: Column(children: [
+                Builder(builder: (_) {
+                  final isToday = d == s.today;
+                  final ok = !d.isAfter(s.today) && s.dayOf(d, habit.id).completed;
+                  if (ok) {
+                    return Container(
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(color: c, shape: BoxShape.circle),
+                      child: const Icon(LucideIcons.check, size: 15, color: AppColors.white),
+                    );
+                  }
+                  if (isToday) {
+                    return SizedBox.square(
+                      dimension: 30,
+                      child: CustomPaint(
+                        painter: _DashedCircle(c),
+                        child: Center(child: Text('Hoy', style: AppText.inter(8.5, FontWeight.w700, color: c))),
+                      ),
+                    );
+                  }
+                  if (d.isAfter(s.today)) {
+                    return Container(
+                      width: 30,
+                      height: 30,
+                      decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: AppColors.border, width: 1.5)),
+                    );
+                  }
+                  return Container(
+                    width: 30,
+                    height: 30,
+                    decoration: BoxDecoration(
+                      color: AppColors.dangerSoft.withValues(alpha: 0.6),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: const Color(0xFFFECACA)),
+                    ),
+                    child: const Icon(LucideIcons.x, size: 13, color: Color(0xFFF87171)),
+                  );
+                }),
+                const SizedBox(height: 5),
+                Text(Dates.weekdaysShort[d.weekday - 1],
+                    style: AppText.inter(10, d == s.today ? FontWeight.w700 : FontWeight.w500,
+                        color: d == s.today ? c : AppColors.textMuted)),
+              ]),
+            ),
+        ]),
+      ]),
+    );
+  }
+}
+
+class _DashedCircle extends CustomPainter {
+  _DashedCircle(this.color);
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final p = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+    final r = size.width / 2 - 1;
+    const n = 14;
+    for (var i = 0; i < n; i++) {
+      final a = i * 2 * math.pi / n;
+      canvas.drawArc(Rect.fromCircle(center: size.center(Offset.zero), radius: r), a, math.pi / n, false, p);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DashedCircle o) => o.color != color;
+}
+
+/// Tarjeta «CONSEJO PRÁCTICO» con el color del hábito.
+class _Advice extends StatelessWidget {
+  const _Advice({required this.habit});
+  final Habit habit;
 
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: AppColors.white, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppColors.border)),
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: habit.softColor.withValues(alpha: 0.45),
+          borderRadius: Radii.rCard,
+          border: Border.all(color: habit.softColor),
+        ),
         child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Container(
-            width: 22,
-            height: 22,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(color: AppColors.green, borderRadius: BorderRadius.circular(7)),
-            child: Text('$index', style: AppText.inter(11.5, FontWeight.w700, color: AppColors.white)),
+            width: 32,
+            height: 32,
+            decoration: const BoxDecoration(color: AppColors.white, shape: BoxShape.circle),
+            child: Icon(LucideIcons.lightbulb, size: 16, color: habit.color),
           ),
           const SizedBox(width: 10),
-          Expanded(child: Text(text, style: AppText.inter(13, FontWeight.w400, color: const Color(0xFF374151), height: 1.45))),
+          Expanded(
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text('CONSEJO PRÁCTICO', style: AppText.overline.copyWith(color: habit.color)),
+              const SizedBox(height: 4),
+              Text(habit.advice, style: AppText.inter(13.5, FontWeight.w500, height: 1.45)),
+            ]),
+          ),
         ]),
       );
 }

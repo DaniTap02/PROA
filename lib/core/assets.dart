@@ -5,6 +5,7 @@ abstract final class Img {
   static const cooking = '$_p/cocinando_en_casa.jpg';
   static const running = '$_p/actividad_fisica.jpg';
   static const avatar = '$_p/avatar_usuaria.jpg';
+  static const welcome = '$_p/bienvenida.jpg';
   static const plato = '$_p/plato_equilibrado.jpg';
   static const porciones = '$_p/porciones.jpg';
   static const frutas = '$_p/frutas_y_verduras.jpg';

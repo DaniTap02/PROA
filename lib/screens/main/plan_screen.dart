@@ -10,6 +10,7 @@ import '../../state/app_state.dart';
 import '../../widgets/common.dart';
 import '../../widgets/controls.dart';
 import '../../widgets/habit_row.dart';
+import '../../widgets/warm_link_card.dart';
 import '../profile/my_habits_screen.dart';
 import 'habit_actions.dart';
 
@@ -59,6 +60,7 @@ class _PlanScreenState extends State<PlanScreen> {
         children: [
           ScreenTitle(
             overline: Dates.overline(day),
+            overlineColor: AppColors.textSecondary,
             title: isToday ? 'Mi plan de hoy' : 'Mi plan del día',
             trailing: CircleIconButton(LucideIcons.calendar, semantic: 'Elegir fecha', onTap: () => _pickDate(s)),
           ),
@@ -133,29 +135,19 @@ class _PlanScreenState extends State<PlanScreen> {
 
 /// Acceso al registro de antojos (se abre desde Plan, Alimentación y Progreso).
 class CravingBanner extends StatelessWidget {
-  const CravingBanner({super.key, required this.onTap});
+  const CravingBanner({
+    super.key,
+    required this.onTap,
+    this.title = '¿Sientes ansiedad o un antojo?',
+    this.subtitle = 'Registra cómo te sientes ahora',
+    this.icon = LucideIcons.heart,
+  });
   final VoidCallback onTap;
+  final String title, subtitle;
+  final IconData icon;
 
   @override
-  Widget build(BuildContext context) => ProaCard(
-        onTap: onTap,
-        color: AppColors.warmSofter,
-        border: Border.all(color: const Color(0xFFFED7AA)),
-        shadow: null,
-        padding: const EdgeInsets.all(14),
-        child: Row(children: [
-          const IconBox(LucideIcons.cookie, color: AppColors.orange, bg: AppColors.warmBg, size: 40),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('¿Tienes un antojo?', style: AppText.inter(14, FontWeight.w700)),
-              const SizedBox(height: 2),
-              Text('Registra cómo te sientes y recibe ideas.', style: AppText.inter(12, FontWeight.w400, color: AppColors.textSecondary)),
-            ]),
-          ),
-          const Icon(LucideIcons.chevronRight, size: 18, color: AppColors.orange),
-        ]),
-      );
+  Widget build(BuildContext context) => WarmLinkCard(title: title, subtitle: subtitle, icon: icon, onTap: onTap);
 }
 
 class _WeekStrip extends StatelessWidget {
@@ -205,8 +197,8 @@ class _DayCell extends StatelessWidget {
               gradient: selected ? AppColors.primaryButtonGradient : null,
               color: selected ? null : AppColors.white,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: selected ? Colors.transparent : (isToday ? AppColors.green : AppColors.border)),
-              boxShadow: selected ? Shadows.colored() : null,
+              border: Border.all(color: selected ? Colors.transparent : (isToday ? AppColors.green : Colors.transparent)),
+              boxShadow: selected ? Shadows.colored() : Shadows.soft,
             ),
             child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
               Text(Dates.weekdaysShort[date.weekday - 1],
@@ -219,7 +211,9 @@ class _DayCell extends StatelessWidget {
                 height: 5,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: active ? (selected ? AppColors.white : AppColors.green) : Colors.transparent,
+                  color: active
+                      ? (selected ? AppColors.white : AppColors.green)
+                      : (selected ? AppColors.white.withValues(alpha: 0.5) : const Color(0xFFD1D5DB)),
                 ),
               ),
             ]),

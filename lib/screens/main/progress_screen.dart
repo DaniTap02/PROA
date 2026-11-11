@@ -10,6 +10,7 @@ import '../../state/app_state.dart';
 import '../../widgets/charts.dart';
 import '../../widgets/common.dart';
 import '../../widgets/controls.dart';
+import '../../widgets/warm_link_card.dart';
 import '../cravings/cravings_screen.dart';
 import 'habit_actions.dart';
 import 'plan_screen.dart';
@@ -235,18 +236,18 @@ class _ProgressScreenState extends State<ProgressScreen> {
               SizedBox(height: 110, child: LineChart(points: sum.evolution)),
             ]),
           ),
-          const SizedBox(height: 22),
-          SectionHeader('Registros de ansiedad',
-              action: 'Registrar',
-              onAction: () => openCravings(context)),
-          const SizedBox(height: 4),
-          Text('${sum.cravings} ${sum.cravings == 1 ? 'momento registrado' : 'momentos registrados'} en este periodo',
-              style: AppText.inter(12, FontWeight.w400, color: AppColors.textSecondary)),
-          const SizedBox(height: 10),
-          if (s.cravings.isEmpty)
-            CravingBanner(onTap: () => openCravings(context))
-          else
+          const SizedBox(height: 12),
+          _TodayCard(state: s),
+          const SizedBox(height: 12),
+          _AnxietyCard(
+            count: sum.cravings,
+            period: const ['esta semana', 'este mes', 'este año'][_period],
+            onTap: () => openCravings(context),
+          ),
+          if (s.cravings.isNotEmpty) ...[
+            const SizedBox(height: 10),
             CravingHistory(entries: s.cravings.take(3).toList()),
+          ],
           const SizedBox(height: 22),
           const SectionHeader('Historial de hábitos'),
           const SizedBox(height: 10),
@@ -278,4 +279,66 @@ class _ProgressScreenState extends State<ProgressScreen> {
       ),
     );
   }
+}
+
+/// Tarjeta «Hoy · N de M» con el estado de cada hábito (Figma › Progreso).
+class _TodayCard extends StatelessWidget {
+  const _TodayCard({required this.state});
+  final AppState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = state;
+    return ProaCard(
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          Expanded(child: Text('Hoy', style: AppText.inter(14, FontWeight.w700))),
+          Text('${s.completedOn(s.today)} de ${s.plan.length}', style: AppText.inter(13, FontWeight.w700, color: AppColors.green)),
+        ]),
+        const SizedBox(height: 14),
+        Row(children: [
+          for (final h in s.plan)
+            Expanded(
+              child: GestureDetector(
+                onTap: () => openHabit(context, h.id),
+                child: Column(children: [
+                  Builder(builder: (_) {
+                    final done = s.dayOf(s.today, h.id).completed;
+                    return Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: done ? h.color : h.softColor,
+                        shape: BoxShape.circle,
+                        border: done ? null : Border.all(color: h.color.withValues(alpha: 0.25)),
+                        boxShadow: done ? Shadows.colored(h.color) : null,
+                      ),
+                      child: Icon(h.icon, size: 20, color: done ? AppColors.white : h.color),
+                    );
+                  }),
+                  const SizedBox(height: 6),
+                  Text(h.name.split(' ').first, style: AppText.inter(10.5, FontWeight.w500, color: AppColors.textSecondary)),
+                ]),
+              ),
+            ),
+        ]),
+      ]),
+    );
+  }
+}
+
+/// Acceso «Registros de ansiedad» con acento naranja (Figma › Progreso).
+class _AnxietyCard extends StatelessWidget {
+  const _AnxietyCard({required this.count, required this.period, required this.onTap});
+  final int count;
+  final String period;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => WarmLinkCard(
+        title: 'Registros de ansiedad',
+        subtitle: '$count ${count == 1 ? 'momento registrado' : 'momentos registrados'} $period',
+        icon: LucideIcons.heart,
+        onTap: onTap,
+      );
 }

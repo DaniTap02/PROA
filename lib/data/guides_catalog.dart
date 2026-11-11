@@ -4,10 +4,8 @@ import '../models/guide.dart';
 const _green = 0xFF16A34A, _amber = 0xFFF59E0B, _orange = 0xFFEA580C;
 const _turq = 0xFF0891B2, _gray = 0xFFCBD5E1;
 
-/// Seis guías nutricionales.
-/// Guías 1-4: textos tomados de las capturas de Figma.
-/// Guías 5-6: el documento solo muestra la foto «Proteínas» en el banco de
-/// imágenes; su contenido queda PENDIENTE DE VALIDAR contra Figma.
+/// Seis guías nutricionales, en el orden y con los textos de Figma
+/// («Todas las guías» y pantallas de detalle).
 const guidesCatalog = <Guide>[
   Guide(
     id: 'plato',
@@ -27,14 +25,12 @@ const guidesCatalog = <Guide>[
       ('Proteínas', 25, _orange),
     ]),
     tips: [
-      'Llena la mitad de tu plato con verduras y frutas: ensalada, tomate, '
-          'ahuyama o habichuela.',
-      'Usa un cuarto para arroz, papa, yuca, plátano o arepa, sin repetir '
-          'varias en la misma comida.',
-      'Completa con un cuarto de proteína: pollo, huevo, pescado, carne magra '
-          'o frijoles.',
-      'Acompaña con agua en lugar de gaseosa o jugo azucarado.',
+      'Llena la mitad de tu plato con verduras y frutas de diferentes colores',
+      'Incluye carbohidratos: arroz integral, papa, yuca o arepa de maíz',
+      'Agrega proteína en cada comida: huevo, pollo, pescado o frijoles',
+      'Usa aceite vegetal con moderación para cocinar',
     ],
+    note: 'No necesitas dietas estrictas. El equilibrio en las proporciones hace la diferencia.',
   ),
   Guide(
     id: 'porciones',
@@ -53,11 +49,56 @@ const guidesCatalog = <Guide>[
       ('2 manos', 'Verduras', _green),
     ]),
     tips: [
-      'Sirve el arroz, la papa o la yuca del tamaño de tu puño cerrado.',
-      'La porción de pollo, carne o pescado cabe en la palma de tu mano.',
-      'Aceite, mantequilla o aguacate: más o menos el tamaño de tu pulgar.',
-      'Las verduras pueden ocupar lo que cabe en tus dos manos abiertas.',
+      'Carbohidratos: el tamaño de tu puño cerrado',
+      'Proteínas: el tamaño de tu palma de mano',
+      'Grasas saludables: el tamaño de tu pulgar',
+      'Verduras y ensaladas: tanto como quepan en tus dos manos juntas',
     ],
+    note: 'Come despacio. La saciedad llega al cerebro 20 minutos después de empezar a comer.',
+  ),
+  Guide(
+    id: 'frutas',
+    title: 'Frutas y verduras',
+    shortTitle: 'Frutas y verduras',
+    minutes: 3,
+    level: 'Básico',
+    homeTag: 'Nutrición',
+    category: GuideCategory.comidas,
+    image: Img.frutas,
+    intro: 'Consumir 5 porciones al día de frutas y verduras variadas aporta '
+        'vitaminas, fibra y minerales que protegen tu salud.',
+    infographic: SegmentInfographic('Meta diaria: 5 porciones de colores', [
+      ('Rojo', 20, 0xFFEF4444),
+      ('Naranja', 20, _orange),
+      ('Amarillo', 20, 0xFFEAB308),
+      ('Verde', 20, 0xFF22C55E),
+      ('Morado', 20, 0xFF8B5CF6),
+    ]),
+    tips: [
+      'Varía los colores: cada color representa diferentes nutrientes',
+      'Incluye fruta en el desayuno y verdura en el almuerzo y la cena',
+      'Prefiere frutas enteras sobre jugos (conservan la fibra)',
+      'Las verduras congeladas sin sal también son nutritivas',
+    ],
+    note: 'No hay fruta o verdura «mala». La variedad y la frecuencia son lo que cuenta.',
+  ),
+  Guide(
+    id: 'proteinas',
+    title: 'Proteínas saludables',
+    shortTitle: 'Proteínas',
+    minutes: 4,
+    level: 'Básico',
+    category: GuideCategory.comidas,
+    image: Img.proteinas,
+    intro: 'Las proteínas son esenciales para construir y reparar tejidos. No '
+        'solo se encuentran en la carne: hay muchas fuentes vegetales.',
+    tips: [
+      'Legumbres (frijoles, lentejas, garbanzos) son económicas y muy nutritivas',
+      'El huevo es una fuente completa de proteína y muy versátil',
+      'Prefiere carnes blancas (pollo, pescado) sobre carnes rojas',
+      'Los lácteos bajos en grasa también aportan proteína de calidad',
+    ],
+    note: 'Una dieta variada y equilibrada cubre tus necesidades de proteína.',
   ),
   Guide(
     id: 'hidratacion',
@@ -74,11 +115,12 @@ const guidesCatalog = <Guide>[
       ('Otros componentes', 40, _gray),
     ]),
     tips: [
-      'Toma al menos 8 vasos de agua al día (aproximadamente 2 litros).',
-      'Lleva una botella contigo y rellénala durante el día.',
-      'Si te aburre el agua sola, agrégale limón, hierbabuena o pepino.',
-      'A veces la sed se confunde con hambre: toma agua antes de picar.',
+      'Toma al menos 8 vasos de agua al día (aproximadamente 2 litros)',
+      'Bebe agua antes, durante y después del ejercicio',
+      'Incluye frutas y verduras con alto contenido de agua',
+      'Reduce el consumo de bebidas azucaradas y con cafeína',
     ],
+    note: 'Si tu orina es amarillo oscuro, necesitas tomar más agua.',
   ),
   Guide(
     id: 'ultraprocesados',
@@ -92,53 +134,12 @@ const guidesCatalog = <Guide>[
         'industriales, azúcar, sal y grasas añadidas. Consumirlos con '
         'frecuencia afecta la salud a largo plazo.',
     tips: [
-      'Lee las etiquetas: más de 5 ingredientes suele indicar ultraprocesado.',
-      'Limita snacks empacados, gaseosas, embutidos y comidas rápidas.',
-      'Fíjate en los sellos de advertencia «Exceso en azúcares», «sodio» o '
-          '«grasas saturadas».',
-      'Cambia el paquete de mecato por fruta, maní sin sal o una arepa con '
-          'queso.',
+      'Lee las etiquetas: más de 5 ingredientes suele indicar ultraprocesado',
+      'Limita snacks empacados, gaseosas, embutidos y comidas rápidas',
+      'Cocinar en casa te da control total sobre los ingredientes',
+      'Si los consumes, hazlo con moderación y consciencia',
     ],
-  ),
-  Guide(
-    id: 'proteinas',
-    title: 'Proteínas en tu día',
-    shortTitle: 'Proteínas',
-    minutes: 4,
-    level: 'Básico',
-    category: GuideCategory.comidas,
-    image: Img.proteinas,
-    intro: 'Las proteínas te dan saciedad y ayudan a mantener tus músculos. '
-        'No tienen que ser costosas: los frijoles, las lentejas y el huevo '
-        'son opciones económicas y muy colombianas.',
-    infographic: TilesInfographic('Buenas fuentes', [
-      ('Huevo', 'Desayuno', _amber),
-      ('Frijoles', 'Almuerzo', _orange),
-      ('Pescado', 'Cena', _turq),
-      ('Pollo', 'Cualquier hora', _green),
-    ]),
-    tips: [
-      'Incluye una porción de proteína en cada comida principal.',
-      'Combina arroz con frijoles o lentejas: juntos son una proteína completa.',
-      'Prefiere preparaciones a la plancha, sudadas o al horno en vez de fritas.',
-    ],
-  ),
-  Guide(
-    id: 'snacks',
-    title: 'Meriendas para tus antojos',
-    shortTitle: 'Meriendas',
-    minutes: 3,
-    level: 'Básico',
-    category: GuideCategory.antojos,
-    image: Img.frutas,
-    intro: 'Tener a mano meriendas sencillas evita llegar con demasiada hambre '
-        'a la siguiente comida y te ayuda a manejar los antojos sin culpa.',
-    tips: [
-      'Fruta picada con un poco de limón: mango, papaya, piña o guayaba.',
-      'Un puñado de maní o almendras sin sal.',
-      'Yogur natural sin azúcar con avena.',
-      'Zanahoria o pepino en bastones con un poco de sal y limón.',
-    ],
+    note: 'No se trata de eliminarlos para siempre, sino de consumirlos con menos frecuencia.',
   ),
 ];
 

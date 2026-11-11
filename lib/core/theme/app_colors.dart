@@ -29,6 +29,7 @@ abstract final class AppColors {
   static const textMuted = Color(0xFF9CA3AF);
   static const border = Color(0xFFE5EDE8);
   static const surfaceMuted = Color(0xFFF1F5F3);
+  static const fieldBg = Color(0xFFEBF1ED); // buscador, chips y filtro (Figma)
   static const greenSoft = Color(0xFFDCFCE7);
   static const greenSofter = Color(0xFFF0FDF4);
   static const warmSofter = Color(0xFFFFF7ED);

@@ -103,7 +103,7 @@ class GuideDetailScreen extends StatelessWidget {
                   for (final (i, t) in guide.tips.indexed) ...[
                     Container(
                       padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(color: AppColors.white, borderRadius: BorderRadius.circular(14), border: Border.all(color: AppColors.border)),
+                      decoration: BoxDecoration(color: AppColors.surfaceMuted, borderRadius: BorderRadius.circular(14)),
                       child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                         Container(
                           width: 24,
@@ -117,6 +117,22 @@ class GuideDetailScreen extends StatelessWidget {
                       ]),
                     ),
                     const SizedBox(height: 8),
+                  ],
+                  if (guide.note != null) ...[
+                    const SizedBox(height: 6),
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: AppColors.greenSofter,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppColors.greenSoft),
+                      ),
+                      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        const Icon(LucideIcons.messageCircle, size: 18, color: AppColors.green),
+                        const SizedBox(width: 10),
+                        Expanded(child: Text(guide.note!, style: AppText.inter(13.5, FontWeight.w500, height: 1.45))),
+                      ]),
+                    ),
                   ],
                   const SizedBox(height: 14),
                   Text('Más guías', style: AppText.subtitle),

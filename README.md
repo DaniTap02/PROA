@@ -50,7 +50,7 @@ lib/
 | Test (9) | 8 preguntas + Resultado |
 | Principales (6) | Inicio, Plan diario, Alimentación, Antojos y ansiedad, Progreso, Perfil |
 | Hábitos (5) | Tomar agua, Actividad física, Frutas y verduras, Registrar alimentación, Dormir bien |
-| Guías (6) | Plato equilibrado, Porciones, Hidratación, Ultraprocesados, Proteínas, Meriendas |
+| Guías (6) | Plato equilibrado, Porciones, Frutas y verduras, Proteínas saludables, Hidratación, Alimentos ultraprocesados |
 | Emergentes (5) | ¡Hábito completado!, Momento registrado, Guardado, Notificaciones, Cerrar sesión |
 | Complementarias | Editar perfil, Mis hábitos, Recordatorios, Privacidad, Ayuda (FAQ) |
 
