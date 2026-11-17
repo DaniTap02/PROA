@@ -27,6 +27,7 @@ class TestQuestion {
     required this.area,
     required this.text,
     required this.options,
+    this.examples,
   });
 
   /// Etiqueta de la categoría visible («Actividad física», «Sueño»...).
@@ -35,6 +36,9 @@ class TestQuestion {
   final TestArea area;
   final String text;
   final List<TestOption> options;
+
+  /// Ejemplos para aclarar la pregunta («Por ejemplo: …»).
+  final String? examples;
 }
 
 /// Resultado calculado y persistido.

@@ -19,6 +19,10 @@ class ProaTextField extends StatefulWidget {
     this.onChanged,
     this.textInputAction,
     this.maxLength,
+    this.obscureText = false,
+    this.trailing,
+    this.autofillHints,
+    this.onSubmitted,
   });
 
   final TextEditingController controller;
@@ -31,6 +35,10 @@ class ProaTextField extends StatefulWidget {
   final ValueChanged<String>? onChanged;
   final TextInputAction? textInputAction;
   final int? maxLength;
+  final bool obscureText;
+  final Widget? trailing;
+  final Iterable<String>? autofillHints;
+  final ValueChanged<String>? onSubmitted;
 
   @override
   State<ProaTextField> createState() => _ProaTextFieldState();
@@ -92,6 +100,11 @@ class _ProaTextFieldState extends State<ProaTextField> {
               textInputAction: widget.textInputAction,
               onChanged: widget.onChanged,
               maxLength: widget.maxLength,
+              obscureText: widget.obscureText,
+              enableSuggestions: !widget.obscureText,
+              autocorrect: !widget.obscureText,
+              autofillHints: widget.autofillHints,
+              onSubmitted: widget.onSubmitted,
               cursorColor: AppColors.green,
               style: AppText.inter(14.5, FontWeight.w500),
               decoration: InputDecoration(
@@ -105,6 +118,7 @@ class _ProaTextFieldState extends State<ProaTextField> {
           ),
           if (widget.suffix != null && widget.controller.text.isNotEmpty)
             Text(widget.suffix!, style: AppText.inter(14.5, FontWeight.w500)),
+          ?widget.trailing,
         ]),
         ),
       ),

@@ -144,6 +144,27 @@ class _TestScreenState extends State<TestScreen> {
                     Text(q.text, style: AppText.outfit(24, FontWeight.w700, height: 1.2)),
                     const SizedBox(height: 6),
                     Text('Elige la opción que mejor te describe.', style: AppText.secondary),
+                    if (q.examples != null) ...[
+                      const SizedBox(height: 12),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: catBg.withValues(alpha: 0.6),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                          Icon(LucideIcons.info, size: 16, color: catFg),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text.rich(TextSpan(children: [
+                              TextSpan(text: 'Por ejemplo: ', style: AppText.inter(12.5, FontWeight.w700, color: catFg)),
+                              TextSpan(text: q.examples, style: AppText.inter(12.5, FontWeight.w400, color: const Color(0xFF374151), height: 1.45)),
+                            ])),
+                          ),
+                        ]),
+                      ),
+                    ],
                     const SizedBox(height: 20),
                     for (var o = 0; o < q.options.length; o++) ...[
                       _OptionTile(

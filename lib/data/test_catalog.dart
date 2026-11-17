@@ -23,6 +23,8 @@ const testQuestions = <TestQuestion>[
     categoryIcon: LucideIcons.coffee,
     area: TestArea.alimentacion,
     text: '¿Con qué frecuencia consumes bebidas azucaradas?',
+    examples: 'Gaseosas, jugos de caja o en polvo, té frío embotellado, maltas, '
+        'bebidas energizantes, limonadas o café con mucha azúcar.',
     options: [
       TestOption('Todos los días', 0),
       TestOption('Varios días/semana', 1),
@@ -71,6 +73,8 @@ const testQuestions = <TestQuestion>[
     categoryIcon: LucideIcons.utensils,
     area: TestArea.alimentacion,
     text: '¿Con qué frecuencia consumes alimentos ultraprocesados?',
+    examples: 'Papas o chitos de paquete, galletas, ponqués empacados, salchichas, '
+        'jamón y otros embutidos, nuggets, sopas instantáneas y cereales azucarados.',
     options: [
       TestOption('Todos los días', 0),
       TestOption('Varios días', 1),

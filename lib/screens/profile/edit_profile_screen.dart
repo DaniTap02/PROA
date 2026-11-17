@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/assets.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text.dart';
 import '../../state/app_state.dart';
@@ -34,7 +33,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final p = context.read<AppState>().profile!;
     _d = ProfileDraft.from(p);
     _city = TextEditingController(text: p.city);
-    _photo = p.photoPath ?? UserAvatar.noPhoto;
+    _photo = UserAvatar.resolve(p) == null ? UserAvatar.noPhoto : UserAvatar.illustrative;
   }
 
   @override
@@ -78,7 +77,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final p = context.watch<AppState>().profile!;
-    final preview = p.copyWith(name: _d.nameCtrl.text.isEmpty ? p.name : _d.nameCtrl.text, photoPath: _photo);
+    final preview = p.copyWith(name: _d.nameCtrl.text.isEmpty ? p.name : _d.nameCtrl.text, sex: _d.sex, photoPath: _photo);
+    final canIllustrate = UserAvatar.illustrativeFor(_d.sex ?? p.sex) != null;
     return SubScreen(
       title: 'Editar perfil',
       subtitle: 'Actualiza tu información cuando quieras.',
@@ -90,7 +90,11 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             const SizedBox(height: 10),
             Wrap(spacing: 8, children: [
               _PhotoChoice(label: 'Iniciales', selected: _photo == UserAvatar.noPhoto, onTap: () => setState(() => _photo = UserAvatar.noPhoto)),
-              _PhotoChoice(label: 'Foto ilustrativa', selected: _photo == Img.avatar, onTap: () => setState(() => _photo = Img.avatar)),
+              if (canIllustrate)
+                _PhotoChoice(
+                    label: 'Foto ilustrativa',
+                    selected: _photo == UserAvatar.illustrative,
+                    onTap: () => setState(() => _photo = UserAvatar.illustrative)),
             ]),
           ]),
         ),

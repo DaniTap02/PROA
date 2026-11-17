@@ -50,6 +50,16 @@ class HabitDetailScreen extends StatelessWidget {
     }
   }
 
+  Future<void> _toggleSlot(BuildContext context, DateTime day, Habit h, int slot) async {
+    HapticFeedback.selectionClick();
+    try {
+      final reached = await context.read<AppState>().toggleSlot(day, h.id, slot);
+      if (reached && context.mounted) await celebrateHabit(context, day);
+    } catch (_) {
+      if (context.mounted) showErrorToast(context);
+    }
+  }
+
   Future<void> _toggle(BuildContext context, DateTime day, bool completed) async {
     try {
       await context.read<AppState>().setCompleted(day, id, !completed);
@@ -147,9 +157,10 @@ class HabitDetailScreen extends StatelessWidget {
                       const SizedBox(height: 12),
                       _Tracker(
                         habit: h,
-                        value: d.progress,
+                        day: d,
                         enabled: !future,
                         onChanged: (v) => _setProgress(context, day, h, v),
+                        onToggleSlot: (i) => _toggleSlot(context, day, h, i),
                       ),
                       const SizedBox(height: 8),
                       Text(future ? 'Podrás registrar cuando llegue el día.' : 'Toca una casilla para registrar tu avance.',
@@ -217,16 +228,21 @@ class _Stat extends StatelessWidget {
 }
 
 class _Tracker extends StatelessWidget {
-  const _Tracker({required this.habit, required this.value, required this.onChanged, required this.enabled});
+  const _Tracker({required this.habit, required this.day, required this.onChanged, required this.onToggleSlot, required this.enabled});
   final Habit habit;
-  final int value;
+  final HabitDay day;
   final ValueChanged<int> onChanged;
+
+  /// Casillas independientes (Desayuno / Almuerzo / Cena).
+  final ValueChanged<int> onToggleSlot;
   final bool enabled;
 
   @override
   Widget build(BuildContext context) {
     final labels = habit.slotLabels;
     final isMeals = labels != null;
+    final value = day.progress;
+    bool on(int i) => isMeals ? day.hasSlot(i) : i < value;
     final c = habit.color;
     return Row(children: [
       for (var i = 0; i < habit.target; i++)
@@ -236,28 +252,33 @@ class _Tracker extends StatelessWidget {
             child: Semantics(
               button: true,
               label: '${habit.trackerTitle} ${i + 1}',
-              checked: i < value,
+              checked: on(i),
               child: GestureDetector(
-                // Tocar la última casilla llena la vacía; tocar otra fija el valor.
-                onTap: enabled ? () => onChanged(i + 1 == value ? i : i + 1) : null,
+                // Comidas: cada casilla se marca sola. Resto: tocar una casilla
+                // fija la cantidad; tocar la última marcada la desmarca.
+                onTap: !enabled
+                    ? null
+                    : isMeals
+                        ? () => onToggleSlot(i)
+                        : () => onChanged(i + 1 == value ? i : i + 1),
                 child: Column(children: [
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 160),
                     width: double.infinity,
                     height: isMeals ? 46 : 38,
                     decoration: BoxDecoration(
-                      gradient: i < value
+                      gradient: on(i)
                           ? LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color.lerp(c, Colors.white, 0.12)!, c])
                           : null,
-                      color: i < value ? null : habit.softColor.withValues(alpha: 0.55),
+                      color: on(i) ? null : habit.softColor.withValues(alpha: 0.55),
                       borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: i < value ? Colors.transparent : habit.softColor),
+                      border: Border.all(color: on(i) ? Colors.transparent : habit.softColor),
                     ),
-                    child: Icon(habit.trackerIcon, size: isMeals ? 18 : 16, color: i < value ? AppColors.white : c.withValues(alpha: 0.45)),
+                    child: Icon(habit.trackerIcon, size: isMeals ? 18 : 16, color: on(i) ? AppColors.white : c.withValues(alpha: 0.45)),
                   ),
                   if (isMeals) ...[
                     const SizedBox(height: 6),
-                    Text(labels[i], style: AppText.inter(10.5, FontWeight.w600, color: i < value ? AppColors.orange : AppColors.textMuted)),
+                    Text(labels[i], style: AppText.inter(10.5, FontWeight.w600, color: on(i) ? AppColors.orange : AppColors.textMuted)),
                   ],
                 ]),
               ),

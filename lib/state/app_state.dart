@@ -6,6 +6,7 @@ import '../models/craving.dart';
 import '../models/habit.dart';
 import '../models/risk_test.dart';
 import '../models/user_profile.dart';
+import '../services/auth.dart';
 import '../services/local_store.dart';
 
 /// Recordatorio configurable desde Perfil › Recordatorios.
@@ -66,6 +67,21 @@ class AppState extends ChangeNotifier {
 
   bool loaded = false;
   bool loggedIn = false;
+
+  /// Correo de la cuenta activa (null si nadie ha entrado en este dispositivo).
+  String? account;
+
+  /// Último correo usado, para rellenar el inicio de sesión.
+  String? lastEmail;
+
+  /// Hay datos de una versión anterior sin cuenta que se pasarán a la primera
+  /// cuenta que se cree.
+  bool hasLegacyData = false;
+
+  static const _userKeys = ['profile', 'test', 'days', 'favorites', 'cravings', 'habits', 'reminders', 'privacy', 'meta'];
+
+  /// Clave de un dato de la cuenta activa.
+  String _k(String key) => 'u/${account ?? '_'}/$key';
   UserProfile? profile;
   TestResult? testResult;
 
@@ -86,16 +102,44 @@ class AppState extends ChangeNotifier {
   // ---------------------------------------------------------------- carga
   Future<void> load() async {
     final s = await _store.readJson('session');
-    loggedIn = s?['loggedIn'] as bool? ?? false;
-    final readAt = s?['notifReadAt'] as String?;
+    account = s?['email'] as String?;
+    lastEmail = account;
+    loggedIn = account != null && (s?['loggedIn'] as bool? ?? false);
+    final accounts = await _store.readJson('accounts');
+    hasLegacyData = (accounts == null || accounts.isEmpty) && await _store.readJson('profile') != null;
+    await _loadUser();
+    loaded = true;
+    notifyListeners();
+  }
+
+  void _resetUser() {
+    profile = null;
+    testResult = null;
+    _days.clear();
+    favorites.clear();
+    cravings.clear();
+    activeHabits = HabitId.values.toSet();
+    reminders = List.of(_defaultReminders);
+    remindersMaster = true;
+    notificationsReadAt = null;
+    shareAnonymousData = false;
+    lockWithDevice = false;
+  }
+
+  /// Carga los datos de la cuenta activa.
+  Future<void> _loadUser() async {
+    _resetUser();
+    if (account == null) return;
+    final meta = await _store.readJson(_k('meta'));
+    final readAt = meta?['notifReadAt'] as String?;
     notificationsReadAt = readAt == null ? null : DateTime.parse(readAt);
 
-    final p = await _store.readJson('profile');
+    final p = await _store.readJson(_k('profile'));
     profile = p == null ? null : UserProfile.fromJson(p);
-    final t = await _store.readJson('test');
+    final t = await _store.readJson(_k('test'));
     testResult = t == null ? null : TestResult.fromJson(t);
 
-    final d = await _store.readJson('days');
+    final d = await _store.readJson(_k('days'));
     _days.clear();
     d?.forEach((date, habits) {
       _days[date] = {
@@ -104,25 +148,25 @@ class AppState extends ChangeNotifier {
       };
     });
 
-    final f = await _store.readJson('favorites');
+    final f = await _store.readJson(_k('favorites'));
     favorites
       ..clear()
       ..addAll(((f?['ids'] as List?) ?? const []).cast<String>());
 
-    final c = await _store.readJson('cravings');
+    final c = await _store.readJson(_k('cravings'));
     cravings
       ..clear()
       ..addAll(((c?['items'] as List?) ?? const [])
           .map((e) => CravingEntry.fromJson(e as Map<String, dynamic>)));
 
-    final h = await _store.readJson('habits');
+    final h = await _store.readJson(_k('habits'));
     if (h != null) {
       activeHabits = ((h['active'] as List).cast<String>())
           .map(HabitId.values.byName)
           .toSet();
     }
 
-    final r = await _store.readJson('reminders');
+    final r = await _store.readJson(_k('reminders'));
     if (r != null) {
       remindersMaster = r['master'] as bool? ?? true;
       final items = (r['items'] as Map<String, dynamic>?) ?? {};
@@ -135,35 +179,93 @@ class AppState extends ChangeNotifier {
       ];
     }
 
-    final pv = await _store.readJson('privacy');
+    final pv = await _store.readJson(_k('privacy'));
     shareAnonymousData = pv?['share'] as bool? ?? false;
     lockWithDevice = pv?['lock'] as bool? ?? false;
 
-    loaded = true;
-    notifyListeners();
   }
 
   // -------------------------------------------------------------- sesión
   bool get hasAccount => profile != null && testResult != null;
 
   Future<void> _saveSession() => _store.writeJson('session', {
+        'email': account,
         'loggedIn': loggedIn,
+      });
+
+  Future<void> _saveMeta() => _store.writeJson(_k('meta'), {
         'notifReadAt': notificationsReadAt?.toIso8601String(),
       });
 
+  Future<Map<String, dynamic>> _accounts() async => await _store.readJson('accounts') ?? {};
+
+  /// Crea una cuenta con correo y contraseña y la deja activa (la sesión se
+  /// abre al terminar el test con «Crear mi plan»). Si hay datos de una
+  /// versión anterior sin cuenta, pasan a esta cuenta.
+  Future<void> register(String email, String password) async {
+    final e = Auth.normalize(email);
+    final accounts = await _accounts();
+    if (accounts.containsKey(e)) {
+      throw const AuthException('Ya existe una cuenta con este correo. Inicia sesión.');
+    }
+    final salt = Auth.newSalt();
+    accounts[e] = {'salt': salt, 'hash': Auth.hash(password, salt), 'createdAt': now.toIso8601String()};
+    await _store.writeJson('accounts', accounts);
+    account = e;
+    lastEmail = e;
+    loggedIn = false;
+    if (hasLegacyData) {
+      for (final k in _userKeys) {
+        final v = await _store.readJson(k);
+        if (v != null) {
+          await _store.writeJson(_k(k), v);
+          await _store.remove(k);
+        }
+      }
+      final legacySession = await _store.readJson('session');
+      final readAt = legacySession?['notifReadAt'];
+      if (readAt != null) await _store.writeJson(_k('meta'), {'notifReadAt': readAt});
+      hasLegacyData = false;
+    }
+    await _saveSession();
+    await _loadUser();
+    notifyListeners();
+  }
+
+  /// Verifica correo y contraseña y carga los datos de esa cuenta. La sesión
+  /// queda abierta si la cuenta ya terminó el primer ingreso; si no, la app
+  /// continúa con el perfil y el test.
+  Future<void> signIn(String email, String password) async {
+    final e = Auth.normalize(email);
+    final acc = (await _accounts())[e] as Map<String, dynamic>?;
+    if (acc == null) {
+      throw const AuthException('No encontramos una cuenta con este correo en este dispositivo.');
+    }
+    if (!Auth.matches(password, acc['salt'] as String, acc['hash'] as String)) {
+      throw const AuthException('La contraseña no es correcta.');
+    }
+    account = e;
+    lastEmail = e;
+    await _loadUser();
+    loggedIn = hasAccount;
+    await _saveSession();
+    notifyListeners();
+  }
+
   Future<void> saveProfile(UserProfile p) async {
-    await _store.writeJson('profile', p.toJson());
+    await _store.writeJson(_k('profile'), p.toJson());
     profile = p;
     notifyListeners();
   }
 
   Future<void> saveTestResult(TestResult r) async {
-    await _store.writeJson('test', r.toJson());
+    await _store.writeJson(_k('test'), r.toJson());
     testResult = r;
     notifyListeners();
   }
 
   Future<void> logIn() async {
+    if (account == null) throw StateError('No hay una cuenta activa');
     loggedIn = true;
     await _saveSession();
     notifyListeners();
@@ -173,6 +275,8 @@ class AppState extends ChangeNotifier {
   Future<void> logOut() async {
     loggedIn = false;
     await _saveSession();
+    account = null;
+    _resetUser();
     notifyListeners();
   }
 
@@ -183,7 +287,7 @@ class AppState extends ChangeNotifier {
   HabitDay dayOf(DateTime date, HabitId id) =>
       _days[Dates.key(date)]?[id] ?? const HabitDay();
 
-  Future<void> _saveDays() => _store.writeJson('days', {
+  Future<void> _saveDays() => _store.writeJson(_k('days'), {
         for (final e in _days.entries)
           e.key: {for (final h in e.value.entries) h.key.name: h.value.toJson()},
       });
@@ -208,12 +312,23 @@ class AppState extends ChangeNotifier {
   /// Marca o desmarca un hábito. Devuelve el nuevo estado `completed`.
   Future<bool> toggleHabit(DateTime date, HabitId id) async {
     final d = dayOf(date, id);
-    await _setDay(date, id, d.copyWith(completed: !d.completed));
+    await setCompleted(date, id, !d.completed);
     return !d.completed;
   }
 
-  Future<void> setCompleted(DateTime date, HabitId id, bool value) =>
-      _setDay(date, id, dayOf(date, id).copyWith(completed: value));
+  /// Marcar como hecho llena el registro del día; desmarcar lo deja por
+  /// debajo de la meta, para que el registro y el estado no se contradigan.
+  Future<void> setCompleted(DateTime date, HabitId id, bool value) {
+    final h = habitById(id);
+    final d = dayOf(date, id);
+    final full = (1 << h.target) - 1;
+    if (value) {
+      return _setDay(date, id, d.copyWith(completed: true, progress: h.target, slots: full));
+    }
+    if (d.progress < h.target) return _setDay(date, id, d.copyWith(completed: false));
+    final slots = d.slots == full ? full & ~(1 << (h.target - 1)) : d.slots;
+    return _setDay(date, id, d.copyWith(completed: false, progress: h.target - 1, slots: slots));
+  }
 
   /// Actualiza el registro (vasos, minutos, porciones, comidas, horas).
   /// Devuelve true si con este cambio el hábito quedó completo.
@@ -222,7 +337,24 @@ class AppState extends ChangeNotifier {
     final d = dayOf(date, id);
     final v = value.clamp(0, h.target);
     final reached = v >= h.target && !d.completed;
-    await _setDay(date, id, d.copyWith(progress: v, completed: reached ? true : d.completed));
+    // Si el registro baja de la meta, el hábito deja de contar como hecho.
+    final completed = reached ? true : (v < d.progress && v < h.target ? false : d.completed);
+    await _setDay(date, id,
+        d.copyWith(progress: v, completed: completed, slots: v <= 0 ? 0 : (1 << v) - 1));
+    return reached;
+  }
+
+  /// Marca o desmarca una casilla independiente (p. ej. Desayuno). El hábito
+  /// queda hecho solo cuando todas las casillas están marcadas.
+  /// Devuelve true si con este cambio el hábito quedó completo.
+  Future<bool> toggleSlot(DateTime date, HabitId id, int slot) async {
+    final h = habitById(id);
+    final d = dayOf(date, id);
+    final slots = d.slots ^ (1 << slot);
+    final count = [for (var i = 0; i < h.target; i++) if (slots & (1 << i) != 0) i].length;
+    final all = count >= h.target;
+    final reached = all && !d.completed;
+    await _setDay(date, id, d.copyWith(slots: slots, progress: count, completed: all));
     return reached;
   }
 
@@ -320,7 +452,7 @@ class AppState extends ChangeNotifier {
 
   Future<void> setActiveHabits(Set<HabitId> ids) async {
     if (ids.isEmpty) throw ArgumentError('El plan necesita al menos un hábito');
-    await _store.writeJson('habits', {'active': ids.map((e) => e.name).toList()});
+    await _store.writeJson(_k('habits'), {'active': ids.map((e) => e.name).toList()});
     activeHabits = ids;
     notifyListeners();
   }
@@ -333,7 +465,7 @@ class AppState extends ChangeNotifier {
     final next = Set.of(favorites);
     final saved = !next.contains(id);
     saved ? next.add(id) : next.remove(id);
-    await _store.writeJson('favorites', {'ids': next.toList()});
+    await _store.writeJson(_k('favorites'), {'ids': next.toList()});
     favorites
       ..clear()
       ..addAll(next);
@@ -344,7 +476,7 @@ class AppState extends ChangeNotifier {
   // ------------------------------------------------------------- antojos
   Future<void> addCraving(CravingEntry e) async {
     final next = [e, ...cravings];
-    await _store.writeJson('cravings', {'items': next.map((x) => x.toJson()).toList()});
+    await _store.writeJson(_k('cravings'), {'items': next.map((x) => x.toJson()).toList()});
     cravings.insert(0, e);
     notifyListeners();
   }
@@ -355,7 +487,7 @@ class AppState extends ChangeNotifier {
       cravings.where((c) => !c.at.isBefore(Dates.weekStart(today))).length;
 
   // ------------------------------------------------------- recordatorios
-  Future<void> _saveReminders() => _store.writeJson('reminders', {
+  Future<void> _saveReminders() => _store.writeJson(_k('reminders'), {
         'master': remindersMaster,
         'items': {for (final r in reminders) r.id: r.toJson()},
       });
@@ -380,27 +512,25 @@ class AppState extends ChangeNotifier {
 
   Future<void> setPrivacy({bool? share, bool? lock}) async {
     final s = share ?? shareAnonymousData, l = lock ?? lockWithDevice;
-    await _store.writeJson('privacy', {'share': s, 'lock': l});
+    await _store.writeJson(_k('privacy'), {'share': s, 'lock': l});
     shareAnonymousData = s;
     lockWithDevice = l;
     notifyListeners();
   }
 
-  /// Borra todos los datos guardados en este dispositivo.
+  /// Borra la cuenta activa y todos sus datos de este dispositivo.
   Future<void> deleteAllData() async {
-    await _store.clear();
-    profile = null;
-    testResult = null;
+    final e = account;
+    if (e != null) {
+      await _store.removePrefix('u/$e/');
+      final accounts = await _accounts()..remove(e);
+      await _store.writeJson('accounts', accounts);
+    }
+    account = null;
+    lastEmail = null;
     loggedIn = false;
-    _days.clear();
-    favorites.clear();
-    cravings.clear();
-    activeHabits = HabitId.values.toSet();
-    reminders = List.of(_defaultReminders);
-    remindersMaster = true;
-    notificationsReadAt = null;
-    shareAnonymousData = false;
-    lockWithDevice = false;
+    await _saveSession();
+    _resetUser();
     notifyListeners();
   }
 
@@ -454,7 +584,7 @@ class AppState extends ChangeNotifier {
 
   Future<void> markNotificationsRead() async {
     notificationsReadAt = now;
-    await _saveSession();
+    await _saveMeta();
     notifyListeners();
   }
 }

@@ -123,6 +123,7 @@ class ProfileScreen extends StatelessWidget {
                     _InfoRow(LucideIcons.activity, 'Nivel de actividad', p.activity.label),
                     _InfoRow(LucideIcons.target, 'Objetivo', p.goal.label),
                     _InfoRow(LucideIcons.calendar, 'Miembro desde', Dates.monthYear(p.createdAt)),
+                    if (s.account != null) _InfoRow(LucideIcons.mail, 'Correo', s.account!),
                   ]),
                 ),
                 const SizedBox(height: 12),

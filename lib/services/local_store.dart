@@ -9,6 +9,9 @@ abstract interface class LocalStore {
   Future<Map<String, dynamic>?> readJson(String key);
   Future<void> writeJson(String key, Object value);
   Future<void> remove(String key);
+
+  /// Borra todas las claves que empiezan por [prefix].
+  Future<void> removePrefix(String prefix);
   Future<void> clear();
 }
 
@@ -42,6 +45,13 @@ class SharedPrefsStore implements LocalStore {
   Future<void> remove(String key) => _prefs.remove('$_prefix$key');
 
   @override
+  Future<void> removePrefix(String prefix) async {
+    for (final k in _prefs.getKeys().where((k) => k.startsWith('$_prefix$prefix')).toList()) {
+      await _prefs.remove(k);
+    }
+  }
+
+  @override
   Future<void> clear() async {
     for (final k in _prefs.getKeys().where((k) => k.startsWith(_prefix))) {
       await _prefs.remove(k);
@@ -63,6 +73,10 @@ class MemoryStore implements LocalStore {
 
   @override
   Future<void> remove(String key) async => _data.remove(key);
+
+  @override
+  Future<void> removePrefix(String prefix) async =>
+      _data.removeWhere((k, _) => k.startsWith(prefix));
 
   @override
   Future<void> clear() async => _data.clear();

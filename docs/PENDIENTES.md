@@ -55,18 +55,29 @@ El proyecto no documenta una metodología validada. La lógica está **parametri
    bienvenida, la parte inferior se difuminó para ocultar el texto que traía la captura
    (queda bajo el degradado verde). Para fotos perfectas, exportar desde Figma con los
    mismos nombres de `assets/images/`. «Porciones» y «Proteínas» siguen viniendo del PDF.
-2. **Avatar**: por defecto se muestran las iniciales; la foto de Figma se elige en Editar
-   perfil (no se muestra la cara de otra persona como si fuera la del usuario).
+2. **Avatar**: por defecto se muestran las iniciales. La «Foto ilustrativa» depende del
+   sexo del perfil (mujer: avatar de Figma; hombre: recorte del corredor del onboarding;
+   «Prefiero no decir»: solo iniciales).
 3. **Ventana «Guardado»**: en el prototipo no se pudo activar; se usa el aviso oscuro
    del mismo estilo que «Momento registrado».
 4. **Horas de sueño**: el registro es por horas enteras (Figma muestra «6.5 h»).
 5. **Ayuda (FAQ)**: Figma tiene la opción en el perfil, pero no la pantalla; se creó
    siguiendo la mejora #3 de la evaluación heurística.
 
+## Cuentas (correo y contraseña)
+
+- Registro e inicio de sesión con correo electrónico (por ejemplo, de Gmail) y
+  contraseña. La contraseña se guarda como hash HMAC-SHA256 iterado con sal.
+- Los datos de cada cuenta se guardan por separado en el dispositivo; al cerrar sesión se
+  conservan y vuelven al iniciar sesión con la misma cuenta.
+- Los datos de versiones anteriores (sin cuenta) pasan a la primera cuenta que se cree.
+- **Pendiente**: «Continuar con Google» y el inicio de sesión desde otro dispositivo
+  necesitan un servicio en la nube (Firebase Authentication) con un proyecto propio y la
+  huella SHA-1 de la app. Tampoco hay recuperación de contraseña por correo.
+
 ## Funcionalidad pendiente
 
 - **Notificaciones push del sistema**: los recordatorios se guardan y alimentan el panel
   de notificaciones de la app, pero no hay avisos del sistema operativo.
-- **Cuentas en servidor**: no hay backend; los datos viven en el dispositivo.
 - **Foto propia** desde cámara o galería.
-- No se probó en un dispositivo Android/iOS físico; se verificó en web a 390 × 844.
+- Se probó en un Samsung A54 (Android) y en web a 390 × 844; no en iPhone.

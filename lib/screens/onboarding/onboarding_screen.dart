@@ -8,6 +8,10 @@ import '../../core/theme/app_dimens.dart';
 import '../../core/theme/app_text.dart';
 import '../../widgets/common.dart';
 import '../../widgets/proa_button.dart';
+import 'package:provider/provider.dart';
+
+import '../../state/app_state.dart';
+import '../auth/auth_screen.dart';
 import 'create_profile_screen.dart';
 
 class _Page {
@@ -39,7 +43,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final _ctrl = PageController();
   int _i = 0;
 
-  void _toProfile() => Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => const CreateProfileScreen()));
+  /// Sin cuenta activa: primero «Crea tu cuenta»; con cuenta: el perfil.
+  void _toProfile() => Navigator.of(context).pushReplacement(MaterialPageRoute(
+      builder: (_) => context.read<AppState>().account == null ? const AuthScreen() : const CreateProfileScreen()));
 
   void _next() {
     if (_i == _pages.length - 1) {

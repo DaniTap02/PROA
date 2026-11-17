@@ -8,30 +8,18 @@ import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text.dart';
 import '../../state/app_state.dart';
 import '../../widgets/common.dart';
-import '../../widgets/popups.dart';
 import '../../widgets/proa_button.dart';
+import '../auth/auth_screen.dart';
 import 'onboarding_screen.dart';
 
 /// Bienvenida: foto a sangre, degradado verde, marca y «Comenzar».
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
-  Future<void> _login(BuildContext context) async {
-    final s = context.read<AppState>();
-    if (!s.hasAccount) {
-      showProaToast(context,
-          title: 'Aún no tienes cuenta aquí',
-          message: 'No encontramos un perfil guardado en este dispositivo. Toca «Comenzar».',
-          icon: LucideIcons.info,
-          iconBg: AppColors.turquoise,
-          bottomOffset: 40);
-      return;
-    }
-    try {
-      await s.logIn();
-    } catch (_) {
-      if (context.mounted) showErrorToast(context);
-    }
+  void _login(BuildContext context) {
+    final legacy = context.read<AppState>().hasLegacyData;
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (_) => AuthScreen(mode: legacy ? AuthMode.register : AuthMode.login)));
   }
 
   @override

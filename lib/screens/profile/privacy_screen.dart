@@ -17,8 +17,8 @@ class PrivacyScreen extends StatelessWidget {
   Future<void> _delete(BuildContext context) async {
     final ok = await showConfirm(context,
         icon: LucideIcons.trash2,
-        title: '¿Borrar todos tus datos?',
-        message: 'Se eliminarán tu perfil, el test, tus hábitos, guardados e historial de este dispositivo. No se puede deshacer.',
+        title: '¿Borrar tu cuenta?',
+        message: 'Se eliminarán tu cuenta, tu perfil, el test, tus hábitos, guardados e historial de este dispositivo. No se puede deshacer.',
         confirm: 'Borrar');
     if (!ok || !context.mounted) return;
     try {
@@ -57,7 +57,7 @@ class PrivacyScreen extends StatelessWidget {
             const SizedBox(width: 12),
             Expanded(
               child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                Text('Borrar todos mis datos', style: AppText.inter(14, FontWeight.w600, color: AppColors.danger)),
+                Text('Borrar mi cuenta y mis datos', style: AppText.inter(14, FontWeight.w600, color: AppColors.danger)),
                 Text('Elimina la información de este dispositivo', style: AppText.inter(11.5, FontWeight.w400, color: AppColors.textMuted)),
               ]),
             ),

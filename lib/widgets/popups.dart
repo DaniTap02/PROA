@@ -77,10 +77,10 @@ Future<bool> showHabitCompleted(BuildContext context, {required int done, requir
           Pill('¡Racha de $streak ${streak == 1 ? 'día' : 'días'}!', icon: LucideIcons.flame, fg: AppColors.orange, bg: AppColors.warmBg, fontSize: 12),
         ],
         const SizedBox(height: 20),
-        ProaButton('Volver a mi plan', height: 50, onPressed: () => Navigator.of(context).pop(true)),
+        ProaButton('Volver a mi plan', height: 50, onPressed: () => Navigator.of(context, rootNavigator: true).pop(true)),
         const SizedBox(height: 4),
         TextButton(
-          onPressed: () => Navigator.of(context).pop(false),
+          onPressed: () => Navigator.of(context, rootNavigator: true).pop(false),
           child: Text('Seguir aquí', style: AppText.inter(13.5, FontWeight.w600, color: const Color(0xFF374151))),
         ),
       ]),
@@ -109,10 +109,10 @@ Future<bool> showLogoutConfirm(BuildContext context) async {
             textAlign: TextAlign.center),
         const SizedBox(height: 18),
         Row(children: [
-          Expanded(child: ProaButton('Cancelar', kind: ProaButtonKind.dark, height: 46, onPressed: () => Navigator.of(context).pop(false))),
+          Expanded(child: ProaButton('Cancelar', kind: ProaButtonKind.dark, height: 46, onPressed: () => Navigator.of(context, rootNavigator: true).pop(false))),
           const SizedBox(width: 10),
           Expanded(
-            child: _DangerButton(onTap: () => Navigator.of(context).pop(true)),
+            child: _DangerButton(onTap: () => Navigator.of(context, rootNavigator: true).pop(true)),
           ),
         ]),
       ]),
@@ -155,7 +155,7 @@ Future<bool> showConfirm(BuildContext context,
         Text(message, style: AppText.inter(13, FontWeight.w400, color: AppColors.textSecondary, height: 1.5), textAlign: TextAlign.center),
         const SizedBox(height: 18),
         Row(children: [
-          Expanded(child: ProaButton('Cancelar', kind: ProaButtonKind.dark, height: 46, onPressed: () => Navigator.of(context).pop(false))),
+          Expanded(child: ProaButton('Cancelar', kind: ProaButtonKind.dark, height: 46, onPressed: () => Navigator.of(context, rootNavigator: true).pop(false))),
           const SizedBox(width: 10),
           Expanded(
             child: Material(
@@ -163,7 +163,7 @@ Future<bool> showConfirm(BuildContext context,
               borderRadius: Radii.rButton,
               child: InkWell(
                 borderRadius: Radii.rButton,
-                onTap: () => Navigator.of(context).pop(true),
+                onTap: () => Navigator.of(context, rootNavigator: true).pop(true),
                 child: SizedBox(height: 46, child: Center(child: Text(confirm, style: AppText.button.copyWith(fontSize: 15)))),
               ),
             ),

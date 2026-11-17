@@ -62,17 +62,32 @@ class Habit {
 
 /// Estado de un hábito en un día concreto.
 class HabitDay {
-  const HabitDay({this.progress = 0, this.completed = false});
+  const HabitDay({this.progress = 0, this.completed = false, this.slots = 0});
 
+  /// Cantidad registrada (vasos, bloques de 5 min, porciones, comidas, horas).
   final int progress;
   final bool completed;
 
-  HabitDay copyWith({int? progress, bool? completed}) => HabitDay(
+  /// Casillas marcadas una a una (bit i = casilla i). Se usa en hábitos con
+  /// casillas independientes, como Desayuno / Almuerzo / Cena.
+  final int slots;
+
+  bool hasSlot(int i) => slots & (1 << i) != 0;
+
+  HabitDay copyWith({int? progress, bool? completed, int? slots}) => HabitDay(
         progress: progress ?? this.progress,
         completed: completed ?? this.completed,
+        slots: slots ?? this.slots,
       );
 
-  Map<String, dynamic> toJson() => {'p': progress, 'c': completed};
-  factory HabitDay.fromJson(Map<String, dynamic> j) =>
-      HabitDay(progress: j['p'] as int? ?? 0, completed: j['c'] as bool? ?? false);
+  Map<String, dynamic> toJson() => {'p': progress, 'c': completed, 's': slots};
+  factory HabitDay.fromJson(Map<String, dynamic> j) {
+    final p = j['p'] as int? ?? 0;
+    return HabitDay(
+      progress: p,
+      completed: j['c'] as bool? ?? false,
+      // Datos antiguos sin casillas: las primeras «p» casillas.
+      slots: j['s'] as int? ?? (p <= 0 ? 0 : (1 << p) - 1),
+    );
+  }
 }
